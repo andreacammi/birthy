@@ -2,12 +2,14 @@
   "name": "birthy",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://andreacammi.github.io/birthy",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "canvas-confetti": "^1.6.0",
     "framer-motion": "^11.11.9",
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.453.0",
     "react": "^18.3.1",
     "react-canvas-confetti": "^2.0.7",
@@ -26,6 +28,8 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
