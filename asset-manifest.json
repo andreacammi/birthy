@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/birthy/static/css/main.383f2ff1.css",
+    "main.js": "/birthy/static/js/main.3f34ad7c.js",
+    "static/js/453.8c4b7096.chunk.js": "/birthy/static/js/453.8c4b7096.chunk.js",
+    "static/media/confused.png": "/birthy/static/media/confused.38a121628abbd6cd8bbd.png",
+    "static/media/explode.png": "/birthy/static/media/explode.1bed4ea30f0e5dff250b.png",
+    "static/media/stars.png": "/birthy/static/media/stars.4d2b0a7aacba58e27936.png",
+    "static/media/confetti.png": "/birthy/static/media/confetti.ff8ec35e197ee8f42581.png",
+    "static/media/bull.png": "/birthy/static/media/bull.894b13dd732bb563d500.png",
+    "static/media/hand-tower.png": "/birthy/static/media/hand-tower.3372e28bc7e2f291a16b.png",
+    "static/media/swear.png": "/birthy/static/media/swear.a0d9770a54ec250c17df.png",
+    "static/media/blind.png": "/birthy/static/media/blind.f34409539c0a39562e9d.png",
+    "static/media/think.png": "/birthy/static/media/think.72da67a662a07137ae6f.png",
+    "static/media/tower.png": "/birthy/static/media/tower.c26a52b06550c070517e.png",
+    "static/media/artist.png": "/birthy/static/media/artist.54ad6f95577eb2f0bdce.png",
+    "static/media/croissant.png": "/birthy/static/media/croissant.f751e538eb2bcd670853.png",
+    "static/media/baguette.png": "/birthy/static/media/baguette.b2d89f1efe62b79f122f.png",
+    "index.html": "/birthy/index.html",
+    "main.383f2ff1.css.map": "/birthy/static/css/main.383f2ff1.css.map",
+    "main.3f34ad7c.js.map": "/birthy/static/js/main.3f34ad7c.js.map",
+    "453.8c4b7096.chunk.js.map": "/birthy/static/js/453.8c4b7096.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.383f2ff1.css",
+    "static/js/main.3f34ad7c.js"
+  ]
+}
