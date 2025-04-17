@@ -379,8 +379,7 @@ export default function Birthy() {
             setShowCheckMark(false)
             setIsBlocked(true)
             setBlockedImage(getRandomImage())
-            // const newBlockTime = 3599 // 59:59 in seconds
-            const newBlockTime = 3
+            const newBlockTime = 3599 // 59:59 in seconds
             setBlockTimer(newBlockTime)
             localStorage.setItem('blockTimer', newBlockTime.toString())
             setTimeout(() => setIsWrongAnswer(false), 1000)
