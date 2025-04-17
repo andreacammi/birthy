@@ -284,7 +284,11 @@ const TypingAnimation = ({
 };
 
 export default function Birthy() {
-    const [currentQuestion, setCurrentQuestion] = useState(0)
+    const [currentQuestion, setCurrentQuestion] = useState(() => {
+        // Initialize from localStorage to remember which question the user was on
+        const savedQuestion = localStorage.getItem('birthdayQuizCurrentQuestion');
+        return savedQuestion ? parseInt(savedQuestion, 10) : 0;
+    });
     const [userAnswer, setUserAnswer] = useState('')
     const [isWrongAnswer, setIsWrongAnswer] = useState(false)
     const [showCheckMark, setShowCheckMark] = useState(false)
@@ -301,8 +305,9 @@ export default function Birthy() {
     const [successImage, setSuccessImage] = useState<string | null>(null)
     const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null)
     const [showIntro, setShowIntro] = useState(() => {
-        // Skip intro if quiz is completed
-        return localStorage.getItem('birthdayQuizCompleted') !== 'true';
+        // Only show intro for first-time visitors who haven't started or completed the quiz
+        return localStorage.getItem('birthdayQuizStarted') !== 'true' && 
+               localStorage.getItem('birthdayQuizCompleted') !== 'true';
     });
     const [showSubtitle, setShowSubtitle] = useState(false);
     const [showButton, setShowButton] = useState(false);
@@ -311,6 +316,8 @@ export default function Birthy() {
     // Reset typing state when question changes
     useEffect(() => {
         setQuestionTypingComplete(false);
+        // Save current question to localStorage whenever it changes
+        localStorage.setItem('birthdayQuizCurrentQuestion', currentQuestion.toString());
     }, [currentQuestion]);
 
     useEffect(() => {
@@ -388,12 +395,17 @@ export default function Birthy() {
 
     const handleStart = () => {
         setShowIntro(false);
+        // Mark that the user has started the quiz
+        localStorage.setItem('birthdayQuizStarted', 'true');
     }
 
-    // Clear completion state for development/testing
-    // Uncomment if you need to reset the completion state
-    // const resetCompletion = () => {
+    // Clear all session data for development/testing
+    // Uncomment if you need to reset everything
+    // const resetAll = () => {
     //     localStorage.removeItem('birthdayQuizCompleted');
+    //     localStorage.removeItem('birthdayQuizStarted');
+    //     localStorage.removeItem('birthdayQuizCurrentQuestion');
+    //     localStorage.removeItem('blockTimer');
     //     window.location.reload();
     // }
 
