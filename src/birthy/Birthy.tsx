@@ -412,10 +412,10 @@ export default function Birthy() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-red-400 flex flex-col items-center justify-center p-4 text-white content-container">
             {showIntro ? (
-                <div className="flex flex-col items-center justify-center h-full space-y-0">
-                    {/* Fixed height container for the title */}
-                    <div className="h-16 flex items-center justify-center mb-4">
-                        <h1 className="text-4xl font-bold">
+                <div className="flex flex-col items-center justify-center w-full max-w-md px-4 py-16 gap-20">
+                    {/* Title container with responsive sizing */}
+                    <div className="min-h-[100px] flex items-center justify-center">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-center">
                             <TypingAnimation 
                                 text="Tanti Auguri Anna!" 
                                 onComplete={() => setShowSubtitle(true)} 
@@ -423,12 +423,12 @@ export default function Birthy() {
                         </h1>
                     </div>
                     
-                    {/* Fixed height container for the subtitle */}
-                    <div className="h-10 flex items-center justify-center mb-36">
-                        <p className={`text-xl px-8 text-center transition-opacity duration-300 ${showSubtitle ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Subtitle container with responsive height and padding */}
+                    <div className="min-h-[150px] flex items-start justify-center">
+                        <p className={`text-lg sm:text-xl px-4 sm:px-8 text-center transition-opacity duration-300 leading-relaxed ${showSubtitle ? 'opacity-100' : 'opacity-0'}`}>
                             {showSubtitle && (
                                 <TypingAnimation 
-                                    text="Prima di festeggiare, per meritarti il tuo regalo, devi risolvere qualche quiz" 
+                                    text="È ora di festeggiare, per meritarti il tuo regalo, devi risolvere qualche quiz" 
                                     speed={35} 
                                     onComplete={() => setShowButton(true)} 
                                 />
@@ -436,11 +436,11 @@ export default function Birthy() {
                         </p>
                     </div>
                     
-                    {/* Fixed position for the button */}
-                    <div className="h-12 flex items-center justify-center mt-36 pt-12">
+                    {/* Button container */}
+                    <div className="min-h-[60px] flex items-center justify-center">
                         <motion.button
                             onClick={handleStart}
-                            className={`bg-white text-black py-2 px-4 rounded-lg shadow-md hover:bg-opacity-80 transition duration-300 ${showButton ? 'opacity-100' : 'opacity-0'}`}
+                            className={`bg-white text-black py-3 px-10 rounded-lg shadow-md hover:bg-opacity-80 transition duration-300 text-lg ${showButton ? 'opacity-100' : 'opacity-0'}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: showButton ? 1 : 0 }}
                             transition={{ duration: 0.5 }}
@@ -545,7 +545,7 @@ export default function Birthy() {
                                             }`}
                                             disabled={isBlocked || !questionTypingComplete}
                                         >
-                                            {isBlocked ? `Attendi ${blockTimer}s` : questionTypingComplete ? 'Proviamo!' : 'Leggi attentamente'}
+                                            {isBlocked ? `Attendi pazientemente` : questionTypingComplete ? 'Proviamo!' : 'Leggi attentamente'}
                                         </motion.button>
                                     </form>
                                 </motion.div>
