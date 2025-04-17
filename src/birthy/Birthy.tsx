@@ -221,12 +221,77 @@ const SuccessConfetti = ({ image, isFinale = false }: { image: string, isFinale?
     )
 }
 
+const TypingAnimation = ({ 
+    text, 
+    speed = 50, 
+    onComplete,
+    className = ""
+}: { 
+    text: string, 
+    speed?: number, 
+    onComplete?: () => void,
+    className?: string
+}) => {
+    const [displayText, setDisplayText] = useState('');
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [completed, setCompleted] = useState(false);
+    const [showCursor, setShowCursor] = useState(true);
+
+    // Cursor blinking effect
+    useEffect(() => {
+        const cursorInterval = setInterval(() => {
+            setShowCursor(prev => !prev);
+        }, 530);
+        
+        return () => clearInterval(cursorInterval);
+    }, []);
+
+    useEffect(() => {
+        // Reset when text changes
+        setDisplayText('');
+        setCurrentIndex(0);
+        setCompleted(false);
+    }, [text]);
+
+    useEffect(() => {
+        if (completed) return;
+        
+        // If we haven't reached the end of the text yet
+        if (currentIndex < text.length) {
+            const timeout = setTimeout(() => {
+                setDisplayText(prev => prev + text[currentIndex]);
+                setCurrentIndex(currentIndex + 1);
+            }, speed);
+            
+            return () => clearTimeout(timeout);
+        } else if (!completed) {
+            // Mark as completed and call onComplete
+            setCompleted(true);
+            if (onComplete) onComplete();
+        }
+    }, [currentIndex, completed, text, speed, onComplete]);
+
+    return (
+        <span className={className}>
+            {displayText}
+            {!completed && (
+                <span className={`inline-block w-[2px] h-[1em] ml-[2px] relative top-[0.1em] bg-white ${showCursor ? 'opacity-100' : 'opacity-0'}`} 
+                      style={{ transition: 'opacity 0.1s' }}>
+                </span>
+            )}
+        </span>
+    );
+};
+
 export default function Birthy() {
     const [currentQuestion, setCurrentQuestion] = useState(0)
     const [userAnswer, setUserAnswer] = useState('')
     const [isWrongAnswer, setIsWrongAnswer] = useState(false)
     const [showCheckMark, setShowCheckMark] = useState(false)
-    const [showFinal, setShowFinal] = useState(false)
+    const [showFinal, setShowFinal] = useState(() => {
+        // Initialize from localStorage to check if quiz is completed
+        return localStorage.getItem('birthdayQuizCompleted') === 'true';
+    })
     const [isBlocked, setIsBlocked] = useState(false)
     const [blockTimer, setBlockTimer] = useState(() => {
         const savedTime = localStorage.getItem('blockTimer')
@@ -235,11 +300,25 @@ export default function Birthy() {
     const [blockedImage, setBlockedImage] = useState<string | null>(null)
     const [successImage, setSuccessImage] = useState<string | null>(null)
     const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null)
+    const [showIntro, setShowIntro] = useState(() => {
+        // Skip intro if quiz is completed
+        return localStorage.getItem('birthdayQuizCompleted') !== 'true';
+    });
+    const [showSubtitle, setShowSubtitle] = useState(false);
+    const [showButton, setShowButton] = useState(false);
+    const [questionTypingComplete, setQuestionTypingComplete] = useState(false);
+    
+    // Reset typing state when question changes
+    useEffect(() => {
+        setQuestionTypingComplete(false);
+    }, [currentQuestion]);
 
     useEffect(() => {
         if (showFinal) {
             setSuccessImage(towerImg)
             setShowCheckMark(true)
+            // Save completion state to localStorage
+            localStorage.setItem('birthdayQuizCompleted', 'true');
         }
     }, [showFinal])
 
@@ -300,197 +379,244 @@ export default function Birthy() {
             setShowCheckMark(false)
             setIsBlocked(true)
             setBlockedImage(getRandomImage())
-            const newBlockTime = 3599 // 59:59 in seconds
+            // const newBlockTime = 3599 // 59:59 in seconds
+            const newBlockTime = 3
             setBlockTimer(newBlockTime)
             localStorage.setItem('blockTimer', newBlockTime.toString())
             setTimeout(() => setIsWrongAnswer(false), 1000)
         }
     }
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-red-400 flex flex-col items-center justify-center p-4 text-white">
-            <div className="w-full fixed top-0 left-0 p-4">
-                <motion.div
-                    className="w-full h-2 bg-white bg-opacity-20 rounded-full overflow-hidden"
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <motion.div
-                        className="h-full bg-white rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-                        transition={{ duration: 0.5 }}
-                    />
-                </motion.div>
-            </div>
+    const handleStart = () => {
+        setShowIntro(false);
+    }
 
-            <div className="w-full max-w-md">
-                <div className="h-[88px]">
-                    <AnimatePresence>
-                        {!isBlocked && !showFinal && (
-                            <motion.h1
-                                initial={{ y: -50, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: -50, opacity: 0 }}
-                                transition={{ duration: 0.5 }}
-                                className="text-4xl font-bold text-center text-white shadow-text"
-                            >
-                                A Special Birthday Surprise!
-                            </motion.h1>
-                        )}
-                    </AnimatePresence>
-                </div>
-                <AnimatePresence mode="wait">
-                    {!showFinal ? (
-                        <motion.div
-                            key={currentQuestion}
-                            initial={{ x: 300, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -300, opacity: 0 }}
+    // Clear completion state for development/testing
+    // Uncomment if you need to reset the completion state
+    // const resetCompletion = () => {
+    //     localStorage.removeItem('birthdayQuizCompleted');
+    //     window.location.reload();
+    // }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-red-400 flex flex-col items-center justify-center p-4 text-white content-container">
+            {showIntro ? (
+                <div className="flex flex-col items-center justify-center h-full space-y-0">
+                    {/* Fixed height container for the title */}
+                    <div className="h-16 flex items-center justify-center mb-4">
+                        <h1 className="text-4xl font-bold">
+                            <TypingAnimation 
+                                text="Tanti Auguri Anna!" 
+                                onComplete={() => setShowSubtitle(true)} 
+                            />
+                        </h1>
+                    </div>
+                    
+                    {/* Fixed height container for the subtitle */}
+                    <div className="h-10 flex items-center justify-center mb-36">
+                        <p className={`text-xl px-8 text-center transition-opacity duration-300 ${showSubtitle ? 'opacity-100' : 'opacity-0'}`}>
+                            {showSubtitle && (
+                                <TypingAnimation 
+                                    text="Prima di festeggiare, per meritarti il tuo regalo, devi risolvere qualche quiz" 
+                                    speed={35} 
+                                    onComplete={() => setShowButton(true)} 
+                                />
+                            )}
+                        </p>
+                    </div>
+                    
+                    {/* Fixed position for the button */}
+                    <div className="h-12 flex items-center justify-center mt-36 pt-12">
+                        <motion.button
+                            onClick={handleStart}
+                            className={`bg-white text-black py-2 px-4 rounded-lg shadow-md hover:bg-opacity-80 transition duration-300 ${showButton ? 'opacity-100' : 'opacity-0'}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: showButton ? 1 : 0 }}
                             transition={{ duration: 0.5 }}
-                            className="space-y-6"
+                            style={{ pointerEvents: showButton ? 'auto' : 'none' }}
                         >
-                            <div className="perspective-[1000px] w-48 h-48 mx-auto">
-                                <motion.div
-                                    className="w-full h-full relative preserve-3d"
-                                    animate={{ 
-                                        rotateY: currentDisplayImage || blockedImage ? 180 : 0 
-                                    }}
-                                    transition={{ 
-                                        duration: 0.8,
-                                        ease: "easeInOut"
-                                    }}
-                                >
-                                    <motion.img
-                                        src={questions[currentQuestion].image}
-                                        alt="Question Image"
-                                        className="w-48 h-48 object-contain absolute backface-hidden drop-shadow-[0_4px_3px_rgb(0,0,0,0.3)]"
-                                    />
-                                    <motion.img
-                                        src={currentDisplayImage || blockedImage || questions[currentQuestion].image}
-                                        alt="Success Image"
-                                        className="w-48 h-48 object-contain absolute backface-hidden rotate-y-180 drop-shadow-[0_4px_3px_rgb(0,0,0,0.3)]"
-                                    />
-                                </motion.div>
-                            </div>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-xl text-center font-semibold shadow-text"
-                            >
-                                {questions[currentQuestion].question}
-                            </motion.p>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <motion.div
-                                    animate={isWrongAnswer ? {
-                                        x: [-14, 14, -8, 8, -6, 6, -4, 4, -2, 2, 0],
-                                        transition: { duration: 0.8 }
-                                    } : {}}
-                                >
-                                    <input
-                                        type="text"
-                                        value={userAnswer}
-                                        onChange={(e) => setUserAnswer(e.target.value)}
-                                        className={`w-full p-3 bg-white bg-opacity-20 rounded-lg text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:ring-2 ${
-                                            isWrongAnswer 
-                                            ? 'focus:ring-red-400 border-2 border-red-400 bg-red-200 bg-opacity-20' 
-                                            : 'focus:ring-white border-2 border-transparent'
-                                        }`}
-                                        placeholder="Your answer..."
-                                        disabled={isBlocked}
-                                    />
-                                </motion.div>
-                                <motion.button
-                                    type="submit"
-                                    whileHover={{ scale: isBlocked ? 1 : 1.05 }}
-                                    whileTap={{ scale: isBlocked ? 1 : 0.95 }}
-                                    className={`w-full bg-white bg-opacity-20 text-white py-3 rounded-lg transition duration-300 font-semibold shadow-md ${
-                                        isBlocked ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-30'
-                                    }`}
-                                    disabled={isBlocked}
-                                >
-                                    {isBlocked ? `Wait ${blockTimer}s` : 'Submit'}
-                                </motion.button>
-                            </form>
-                        </motion.div>
-                    ) : (
-                        <>
+                            Iniziamo!
+                        </motion.button>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className="w-full fixed top-0 left-0 z-20 backdrop-blur-sm bg-gradient-to-r from-purple-400/70 to-pink-300/70 header-safe-area shadow-md">
+                        <div className="p-4 pb-2">
                             <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
+                                className="w-full h-2 bg-white bg-opacity-20 rounded-full overflow-hidden"
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
                                 transition={{ duration: 0.5 }}
-                                className="space-y-6 text-center"
                             >
-                                <h2 className="text-3xl font-bold shadow-text">Congratulations! 🎉</h2>
-                                <p className="text-xl shadow-text">You've unlocked your special 30th birthday gift!</p>
-                                <motion.img
-                                    src={handTowerImg}
-                                    alt="Birthday Gift"
-                                    className="w-64 h-64 sm:w-96 sm:h-96 object-contain mx-auto"
-                                    transition={{ duration: 0.3 }}
+                                <motion.div
+                                    className="h-full bg-white rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                                    transition={{ duration: 0.5 }}
                                 />
                             </motion.div>
-                            <SuccessConfetti image={towerImg} isFinale={true} />
-                        </>
-                    )}
-                </AnimatePresence>
-            </div>
+                        </div>
+                    </div>
 
-            <AnimatePresence>
-                {showFinal && (
-                    <>
-                        <motion.div>
-                            {/* ... existing final success content ... */}
-                        </motion.div>
-                    </>
-                )}
-                {showCheckMark && !showFinal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="fixed inset-0 flex items-center justify-center pointer-events-none"
-                    >
-                        <SuccessConfetti image={successImage || getRandomSuccessImage()} isFinale={false} />
-                    </motion.div>
-                )}
-                {isBlocked && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="fixed top-0 left-0 right-0 flex items-start justify-center z-50 pt-8"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-white bg-opacity-20 backdrop-blur-md rounded-lg p-8 flex flex-col items-center"
-                        >
-                            <p className="text-2xl font-bold mb-2">Oops! Wrong answer</p>
-                            <p className="text-lg mb-4">Try again in</p>
-                            <div className="flex items-center">
-                                <AnimatePresence mode="popLayout">
-                                    {formatTime(blockTimer).map((digit, index) => (
-                                        <React.Fragment key={`digit-${index}`}>
-                                            <RotatingCard value={digit} />
-                                            {index === 1 && <Colon />}
-                                        </React.Fragment>
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-                            <div className="flex justify-between w-full mt-2 text-sm">
-                                <span className="w-24 text-center">Minutes</span>
-                                <span className="w-24 text-center">Seconds</span>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    <div className="w-full max-w-md content-safe-area pt-8">
+                        <AnimatePresence mode="wait">
+                            {!showFinal ? (
+                                <motion.div
+                                    key={currentQuestion}
+                                    initial={{ x: 300, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: -300, opacity: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="perspective-1000 w-48 h-48 mx-auto">
+                                        <motion.div
+                                            className="w-full h-full relative preserve-3d"
+                                            animate={{ 
+                                                rotateY: currentDisplayImage || blockedImage ? 180 : 0 
+                                            }}
+                                            transition={{ 
+                                                duration: 0.8,
+                                                ease: "easeInOut"
+                                            }}
+                                        >
+                                            <motion.img
+                                                src={questions[currentQuestion].image}
+                                                alt="Question Image"
+                                                className="w-48 h-48 object-contain absolute backface-hidden drop-shadow-[0_4px_3px_rgb(0,0,0,0.3)]"
+                                            />
+                                            <motion.img
+                                                src={currentDisplayImage || blockedImage || questions[currentQuestion].image}
+                                                alt="Success Image"
+                                                className="w-48 h-48 object-contain absolute backface-hidden rotate-y-180 drop-shadow-[0_4px_3px_rgb(0,0,0,0.3)]"
+                                            />
+                                        </motion.div>
+                                    </div>
+                                    <motion.p
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-xl text-center font-semibold shadow-text"
+                                    >
+                                        <TypingAnimation 
+                                            text={questions[currentQuestion].question}
+                                            speed={15}
+                                            onComplete={() => setQuestionTypingComplete(true)}
+                                            className="text-xl text-center font-semibold"
+                                        />
+                                    </motion.p>
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <motion.div
+                                            animate={isWrongAnswer ? {
+                                                x: [-14, 14, -8, 8, -6, 6, -4, 4, -2, 2, 0],
+                                                transition: { duration: 0.8 }
+                                            } : {}}
+                                        >
+                                            <input
+                                                type="text"
+                                                value={userAnswer}
+                                                onChange={(e) => setUserAnswer(e.target.value)}
+                                                className={`w-full p-3 bg-white bg-opacity-20 rounded-lg text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:ring-2 ${
+                                                    isWrongAnswer 
+                                                    ? 'focus:ring-red-400 border-2 border-red-400 bg-red-200 bg-opacity-20' 
+                                                    : 'focus:ring-white border-2 border-transparent'
+                                                }`}
+                                                placeholder="La tua risposta..."
+                                                disabled={isBlocked || !questionTypingComplete}
+                                            />
+                                        </motion.div>
+                                        <motion.button
+                                            type="submit"
+                                            whileHover={{ scale: isBlocked || !questionTypingComplete ? 1 : 1.05 }}
+                                            whileTap={{ scale: isBlocked || !questionTypingComplete ? 1 : 0.95 }}
+                                            className={`w-full bg-white bg-opacity-20 text-white py-3 rounded-lg transition duration-300 font-semibold shadow-md ${
+                                                isBlocked || !questionTypingComplete ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-30'
+                                            }`}
+                                            disabled={isBlocked || !questionTypingComplete}
+                                        >
+                                            {isBlocked ? `Attendi ${blockTimer}s` : questionTypingComplete ? 'Proviamo!' : 'Leggi attentamente'}
+                                        </motion.button>
+                                    </form>
+                                </motion.div>
+                            ) : (
+                                <>
+                                    <motion.div
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ duration: 0.5 }}
+                                        className="space-y-6 text-center"
+                                    >
+                                        <h2 className="text-3xl font-bold shadow-text">Complimenti! 🎉</h2>
+                                        <p className="text-xl shadow-text">Hai sbloccato il regalo per i tuoi 30 anni!</p>
+                                        <motion.img
+                                            src={handTowerImg}
+                                            alt="Birthday Gift"
+                                            className="w-64 h-64 sm:w-96 sm:h-96 object-contain mx-auto"
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                    </motion.div>
+                                    <SuccessConfetti image={towerImg} isFinale={true} />
+                                </>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    <AnimatePresence>
+                        {showFinal && (
+                            <>
+                                <motion.div>
+                                    {/* ... existing final success content ... */}
+                                </motion.div>
+                            </>
+                        )}
+                        {showCheckMark && !showFinal && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="fixed inset-0 flex items-center justify-center pointer-events-none"
+                            >
+                                <SuccessConfetti image={successImage || getRandomSuccessImage()} isFinale={false} />
+                            </motion.div>
+                        )}
+                        {isBlocked && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="blocked-modal-container"
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.8, opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-white bg-opacity-30 backdrop-blur-md rounded-lg p-6 flex flex-col items-center shadow-lg"
+                                >
+                                    <p className="text-2xl font-bold mb-2">Oops! Risposta errata</p>
+                                    <p className="text-lg mb-4">Riprova tra</p>
+                                    <div className="flex items-center">
+                                        <AnimatePresence mode="popLayout">
+                                            {formatTime(blockTimer).map((digit, index) => (
+                                                <React.Fragment key={`digit-${index}`}>
+                                                    <RotatingCard value={digit} />
+                                                    {index === 1 && <Colon />}
+                                                </React.Fragment>
+                                            ))}
+                                        </AnimatePresence>
+                                    </div>
+                                    <div className="flex justify-between w-full mt-2 text-sm">
+                                        <span className="w-24 text-center">Minuti</span>
+                                        <span className="w-24 text-center">Secondi</span>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </>
+            )}
         </div>
     )
 }

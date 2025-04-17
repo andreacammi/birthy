@@ -9,6 +9,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-top: env(safe-area-inset-top);
 }
 
 code {
@@ -24,10 +25,54 @@ code {
     backface-visibility: hidden;
 }
 
-.perspective-[1000px] {
+.perspective-1000 {
     perspective: 1000px;
 }
 
 .rotate-y-180 {
     transform: rotateY(180deg);
+}
+
+.shadow-text {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-safe-area {
+    padding-top: max(16px, env(safe-area-inset-top));
+}
+
+.content-safe-area {
+    padding-top: calc(env(safe-area-inset-top) + 24px);
+}
+
+/* Adds protection at the top of scrollable content to fade elements as they approach the header */
+.content-container {
+    position: relative;
+}
+
+.content-container::before {
+    content: '';
+    position: fixed;
+    top: 0; 
+    left: 0;
+    right: 0;
+    height: calc(env(safe-area-inset-top) + 60px);
+    background: linear-gradient(to bottom, 
+        rgba(193, 118, 252, 0.95) 0%,
+        rgba(193, 118, 252, 0.8) 30%, 
+        rgba(193, 118, 252, 0.6) 60%,
+        rgba(193, 118, 252, 0) 100%);
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* Class for the blocked modal to position it below header */
+.blocked-modal-container {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 60px);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
 }
