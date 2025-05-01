@@ -31,7 +31,7 @@ const questions = [
     },
     {
         image: thinkImg,
-        question: "161 061 681 881 *** 981 281",
+        question: "Fill the missing number: \n161 061 681 881 *** 981 281",
         answer: ["187", "781"]
     },
     {
@@ -298,8 +298,13 @@ export default function Birthy() {
     })
     const [isBlocked, setIsBlocked] = useState(false)
     const [blockTimer, setBlockTimer] = useState(() => {
-        const savedTime = localStorage.getItem('blockTimer')
-        return savedTime ? parseInt(savedTime, 10) : 0
+        const savedEndTime = localStorage.getItem('blockEndTime')
+        if (!savedEndTime) return 0
+        
+        const endTime = parseInt(savedEndTime, 10)
+        const currentTime = Math.floor(Date.now() / 1000)
+        const remainingTime = Math.max(0, endTime - currentTime)
+        return remainingTime
     })
     const [blockedImage, setBlockedImage] = useState<string | null>(null)
     const [successImage, setSuccessImage] = useState<string | null>(null)
@@ -312,6 +317,48 @@ export default function Birthy() {
     const [showSubtitle, setShowSubtitle] = useState(false);
     const [showButton, setShowButton] = useState(false);
     const [questionTypingComplete, setQuestionTypingComplete] = useState(false);
+    
+    // Add localStorage event listener to sync across tabs
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            // Check if the blockEndTime was changed in another tab
+            if (e.key === 'blockEndTime' && e.newValue) {
+                const endTime = parseInt(e.newValue, 10)
+                const currentTime = Math.floor(Date.now() / 1000)
+                
+                if (currentTime < endTime) {
+                    // Block is active in another tab, apply it here too
+                    setIsBlocked(true)
+                    setBlockedImage(getRandomImage())
+                    setBlockTimer(endTime - currentTime)
+                }
+            } else if (e.key === 'blockEndTime' && !e.newValue) {
+                // Lock was removed in another tab
+                setIsBlocked(false)
+                setBlockedImage(null)
+                setCurrentDisplayImage(null)
+                setBlockTimer(0)
+            }
+            
+            // Also sync quiz completion status
+            if (e.key === 'birthdayQuizCompleted' && e.newValue === 'true') {
+                setShowFinal(true)
+            }
+            
+            // Sync current question
+            if (e.key === 'birthdayQuizCurrentQuestion' && e.newValue) {
+                setCurrentQuestion(parseInt(e.newValue, 10))
+            }
+        }
+        
+        // Add event listener for storage changes
+        window.addEventListener('storage', handleStorageChange)
+        
+        // Cleanup
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+        }
+    }, [])
     
     // Reset typing state when question changes
     useEffect(() => {
@@ -331,21 +378,59 @@ export default function Birthy() {
 
     useEffect(() => {
         let interval: NodeJS.Timeout
-        if (blockTimer > 0) {
+        
+        // Check if there's a saved end time
+        const savedEndTime = localStorage.getItem('blockEndTime')
+        if (savedEndTime) {
+            const endTime = parseInt(savedEndTime, 10)
+            const currentTime = Math.floor(Date.now() / 1000)
+            
+            if (currentTime >= endTime) {
+                // The block period has already ended
+                setIsBlocked(false)
+                setBlockedImage(null)
+                setCurrentDisplayImage(null)
+                localStorage.removeItem('blockEndTime')
+                setBlockTimer(0)
+            } else {
+                // Block is still active
+                setIsBlocked(true)
+                setBlockTimer(endTime - currentTime)
+                
+                interval = setInterval(() => {
+                    const currentTime = Math.floor(Date.now() / 1000)
+                    if (currentTime >= endTime) {
+                        // Block period has just ended
+                        setIsBlocked(false)
+                        setBlockedImage(null)
+                        setCurrentDisplayImage(null)
+                        localStorage.removeItem('blockEndTime')
+                        setBlockTimer(0)
+                        clearInterval(interval)
+                    } else {
+                        // Update the remaining time
+                        setBlockTimer(endTime - currentTime)
+                    }
+                }, 1000)
+            }
+        } else if (blockTimer > 0) {
+            // For backward compatibility or initial state
             setIsBlocked(true)
             interval = setInterval(() => {
                 setBlockTimer((prevTimer) => {
                     const newTimer = prevTimer - 1
-                    localStorage.setItem('blockTimer', newTimer.toString())
-                    return newTimer
+                    if (newTimer <= 0) {
+                        setIsBlocked(false)
+                        setBlockedImage(null)
+                        setCurrentDisplayImage(null)
+                        localStorage.removeItem('blockEndTime')
+                        clearInterval(interval)
+                    }
+                    return newTimer > 0 ? newTimer : 0
                 })
             }, 1000)
-        } else {
-            setIsBlocked(false)
-            setBlockedImage(null)
-            setCurrentDisplayImage(null)
-            localStorage.removeItem('blockTimer')
         }
+        
         return () => clearInterval(interval)
     }, [blockTimer])
 
@@ -386,9 +471,16 @@ export default function Birthy() {
             setShowCheckMark(false)
             setIsBlocked(true)
             setBlockedImage(getRandomImage())
-            const newBlockTime = 3599 // 59:59 in seconds
-            setBlockTimer(newBlockTime)
-            localStorage.setItem('blockTimer', newBlockTime.toString())
+            
+            // Set block for 30 minutes (1800 seconds)
+            const blockDuration = 1800
+            const currentTime = Math.floor(Date.now() / 1000)
+            const endTime = currentTime + blockDuration - 1 // -1 to make it 59:59
+            
+            // Store the end time in localStorage
+            localStorage.setItem('blockEndTime', endTime.toString())
+            setBlockTimer(blockDuration - 1) // Initial display value
+            
             setTimeout(() => setIsWrongAnswer(false), 1000)
         }
     }
@@ -513,7 +605,7 @@ export default function Birthy() {
                                             text={questions[currentQuestion].question}
                                             speed={15}
                                             onComplete={() => setQuestionTypingComplete(true)}
-                                            className="text-xl text-center font-semibold"
+                                            className="text-xl text-center font-semibold whitespace-pre-line"
                                         />
                                     </motion.p>
                                     <form onSubmit={handleSubmit} className="space-y-4">
