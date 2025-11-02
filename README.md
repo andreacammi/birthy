@@ -1,6 +1,6 @@
 # Birthy
 
-A website with thematic brain-teasers to answer in order to get a birthday gift revealed.
+A pretty website with thematic brain-teasers to answer in order to get a birthday gift revealed.
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 
