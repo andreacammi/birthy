@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/birthy/static/css/main.8a2bf6e1.css",
-    "main.js": "/birthy/static/js/main.a51bf940.js",
+    "main.css": "/birthy/static/css/main.a80b7347.css",
+    "main.js": "/birthy/static/js/main.986d215c.js",
     "static/js/453.8c4b7096.chunk.js": "/birthy/static/js/453.8c4b7096.chunk.js",
     "static/media/confused.png": "/birthy/static/media/confused.38a121628abbd6cd8bbd.png",
     "static/media/explode.png": "/birthy/static/media/explode.1bed4ea30f0e5dff250b.png",
@@ -18,12 +18,12 @@
     "static/media/croissant.png": "/birthy/static/media/croissant.f751e538eb2bcd670853.png",
     "static/media/baguette.png": "/birthy/static/media/baguette.b2d89f1efe62b79f122f.png",
     "index.html": "/birthy/index.html",
-    "main.8a2bf6e1.css.map": "/birthy/static/css/main.8a2bf6e1.css.map",
-    "main.a51bf940.js.map": "/birthy/static/js/main.a51bf940.js.map",
+    "main.a80b7347.css.map": "/birthy/static/css/main.a80b7347.css.map",
+    "main.986d215c.js.map": "/birthy/static/js/main.986d215c.js.map",
     "453.8c4b7096.chunk.js.map": "/birthy/static/js/453.8c4b7096.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8a2bf6e1.css",
-    "static/js/main.a51bf940.js"
+    "static/css/main.a80b7347.css",
+    "static/js/main.986d215c.js"
   ]
 }
