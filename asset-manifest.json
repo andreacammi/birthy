@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/birthy/static/css/main.1806d352.css",
-    "main.js": "/birthy/static/js/main.ea9134cc.js",
+    "main.js": "/birthy/static/js/main.d46b09ff.js",
     "static/js/453.8c4b7096.chunk.js": "/birthy/static/js/453.8c4b7096.chunk.js",
     "static/media/confused.png": "/birthy/static/media/confused.38a121628abbd6cd8bbd.png",
     "static/media/explode.png": "/birthy/static/media/explode.1bed4ea30f0e5dff250b.png",
@@ -18,11 +18,11 @@
     "static/media/baguette.png": "/birthy/static/media/baguette.b2d89f1efe62b79f122f.png",
     "index.html": "/birthy/index.html",
     "main.1806d352.css.map": "/birthy/static/css/main.1806d352.css.map",
-    "main.ea9134cc.js.map": "/birthy/static/js/main.ea9134cc.js.map",
+    "main.d46b09ff.js.map": "/birthy/static/js/main.d46b09ff.js.map",
     "453.8c4b7096.chunk.js.map": "/birthy/static/js/453.8c4b7096.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1806d352.css",
-    "static/js/main.ea9134cc.js"
+    "static/js/main.d46b09ff.js"
   ]
 }
