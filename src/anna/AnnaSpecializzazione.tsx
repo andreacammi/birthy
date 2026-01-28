@@ -280,7 +280,7 @@ export default function AnnaSpecializzazione() {
         </main>
 
         <footer className="mt-8 text-center text-xs text-white/35">
-          Fatto con amore (e un po’ di CSS).
+          Made with 🫀
         </footer>
       </div>
     </div>
