@@ -7,18 +7,26 @@ type Pack = "A" | "B" | "C";
 
 const STORAGE_KEY = "anna_specializzazione_gift_pack";
 
+const MED_SHAPES = (() => {
+  // canvas-confetti supports emoji/text shapes
+  const anyConfetti = confetti as any;
+  const mk = (text: string) => anyConfetti.shapeFromText({ text, scalar: 1.05 });
+  return [mk("🩺"), mk("💊"), mk("🧬"), mk("🩹"), mk("🧪")];
+})();
+
 function fireMedicalConfetti(intensity: "light" | "big" = "light") {
-  const duration = intensity === "big" ? 1700 : 900;
+  const duration = intensity === "big" ? 1600 : 900;
   const end = Date.now() + duration;
-  const colors = ["#22c55e", "#60a5fa", "#f472b6", "#a78bfa", "#fde047"]; // green/blue/pink/purple/yellow
   const defaults = {
     startVelocity: intensity === "big" ? 34 : 26,
     spread: 360,
-    ticks: intensity === "big" ? 70 : 55,
+    ticks: intensity === "big" ? 85 : 70,
     zIndex: 999,
-    gravity: 0.95,
-    scalar: intensity === "big" ? 1.1 : 1.0,
+    gravity: 0.9,
+    scalar: intensity === "big" ? 1.2 : 1.05,
   };
+
+  const pickShape = () => MED_SHAPES[Math.floor(Math.random() * MED_SHAPES.length)];
 
   const interval = setInterval(() => {
     const timeLeft = end - Date.now();
@@ -27,29 +35,31 @@ function fireMedicalConfetti(intensity: "light" | "big" = "light") {
       return;
     }
 
-    const particleCount = intensity === "big" ? 55 : 32;
+    const particleCount = intensity === "big" ? 42 : 26;
+
+    const shapes = [pickShape(), pickShape()];
 
     confetti({
       ...defaults,
       particleCount,
-      origin: { x: 0.5, y: 0.32 },
-      colors,
+      origin: { x: 0.5, y: 0.28 },
+      shapes,
     });
 
     confetti({
       ...defaults,
-      particleCount: Math.floor(particleCount * 0.5),
-      origin: { x: 0.15, y: 0.35 },
-      colors,
+      particleCount: Math.floor(particleCount * 0.55),
+      origin: { x: 0.18, y: 0.32 },
+      shapes,
     });
 
     confetti({
       ...defaults,
-      particleCount: Math.floor(particleCount * 0.5),
-      origin: { x: 0.85, y: 0.35 },
-      colors,
+      particleCount: Math.floor(particleCount * 0.55),
+      origin: { x: 0.82, y: 0.32 },
+      shapes,
     });
-  }, intensity === "big" ? 220 : 240);
+  }, intensity === "big" ? 200 : 230);
 }
 
 function fireSnowConfetti() {
@@ -117,7 +127,7 @@ function GiftBox({
   accent: "a" | "b" | "c";
   wiggleDelay: number;
 }) {
-  const accentGrad =
+  const glow =
     accent === "a"
       ? "from-fuchsia-500/25 to-indigo-500/10"
       : accent === "b"
@@ -127,45 +137,27 @@ function GiftBox({
   return (
     <motion.button
       onClick={onPick}
-      className={
-        "relative w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br " +
-        accentGrad +
-        " px-6 py-8 text-left backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
-      }
+      className="relative w-full py-5 focus:outline-none"
       initial={{ opacity: 0, y: 12 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        rotate: [0, -1.5, 1.5, 0],
-      }}
-      transition={{
-        opacity: { duration: 0.25 },
-        y: { duration: 0.25 },
-        rotate: { delay: wiggleDelay, duration: 1.1, ease: "easeInOut" },
-      }}
-      whileHover={{ y: -2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
       whileTap={{ scale: 0.985 }}
       layout
     >
-      {/* ribbon */}
-      <div className="pointer-events-none absolute inset-0 opacity-55">
-        <div className="absolute left-1/2 top-0 h-full w-10 -translate-x-1/2 bg-white/10" />
-        <div className="absolute left-0 top-1/2 h-10 w-full -translate-y-1/2 bg-white/10" />
-      </div>
+      <motion.div
+        className={
+          "mx-auto flex h-32 w-32 items-center justify-center rounded-[2.25rem] border border-white/15 bg-gradient-to-br " +
+          glow +
+          " shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_20px_60px_-30px_rgba(0,0,0,0.7)] backdrop-blur"
+        }
+        initial={{ rotate: 0 }}
+        animate={{ rotate: [0, -10, 10, 0] }}
+        transition={{ delay: wiggleDelay, duration: 1.25, ease: "easeInOut" }}
+      >
+        <div className="text-6xl leading-none">🎁</div>
+      </motion.div>
 
-      <div className="relative">
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-semibold">{label}</div>
-          <div className="text-2xl">🎁</div>
-        </div>
-        <div className="mt-2 text-sm text-white/70">
-          Tocca per scartare
-        </div>
-      </div>
-
-      {/* sparkles */}
-      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-      <div className="pointer-events-none absolute -left-8 -bottom-10 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+      <div className="mt-3 text-center text-base font-semibold text-white/90">{label}</div>
     </motion.button>
   );
 }
@@ -253,9 +245,11 @@ export default function AnnaSpecializzazione() {
                   Tocca un pacco per scartarlo.
                 </div>
 
-                <GiftBox label="Pacco A" accent="a" wiggleDelay={0.9} onPick={() => onPick("A")} />
-                <GiftBox label="Pacco B" accent="b" wiggleDelay={1.1} onPick={() => onPick("B")} />
-                <GiftBox label="Pacco C" accent="c" wiggleDelay={1.3} onPick={() => onPick("C")} />
+                <div className="flex flex-col gap-2">
+                  <GiftBox label="Pacco A" accent="a" wiggleDelay={0.9} onPick={() => onPick("A")} />
+                  <GiftBox label="Pacco B" accent="b" wiggleDelay={1.1} onPick={() => onPick("B")} />
+                  <GiftBox label="Pacco C" accent="c" wiggleDelay={1.3} onPick={() => onPick("C")} />
+                </div>
               </motion.div>
             ) : (
               <motion.div
