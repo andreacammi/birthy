@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Pill, Stethoscope, Syringe } from "lucide-react";
+import skiSticker from "../assets/anna/ski-sticker.jpg";
 
 type Pack = "A" | "B" | "C";
 
@@ -263,12 +264,29 @@ export default function AnnaSpecializzazione() {
                   <Stethoscope className="h-5 w-5 text-emerald-200" />
                 </div>
 
-                <div className="mt-3 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-4">
+                <div className="relative mt-3 overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-4">
                   <div className="text-xs uppercase tracking-widest text-white/55">Voucher</div>
                   <div className="mt-1 text-3xl font-semibold">250€</div>
                   <div className="mt-1 text-sm text-white/75">
                     Per una <span className="font-medium text-white">tuta da sci</span>. La scegli tu dove vuoi.
                   </div>
+
+                  {/* fun sticker inside the opened gift */}
+                  <motion.img
+                    src={skiSticker}
+                    alt=""
+                    className="pointer-events-none absolute -bottom-8 -right-6 h-36 w-auto rotate-6 select-none opacity-90"
+                    initial={{ opacity: 0, x: 24, y: 24, rotate: 12, scale: 0.95 }}
+                    animate={{ opacity: 0.95, x: 0, y: 0, rotate: 6, scale: 1 }}
+                    transition={{ delay: 0.35, duration: 0.55, ease: "easeOut" }}
+                  />
+
+                  <motion.div
+                    className="pointer-events-none absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-white/10 blur-2xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                  />
                 </div>
 
                 {packCopy?.line ? (
