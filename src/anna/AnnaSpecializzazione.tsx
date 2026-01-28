@@ -191,7 +191,7 @@ export default function AnnaSpecializzazione() {
       case "B":
         return {
           title: "Pacco B",
-          line: "Ufficialmente ginecologa. Adesso sì che possiamo dirlo 😄",
+          line: "",
         };
       case "C":
         return {
@@ -227,7 +227,7 @@ export default function AnnaSpecializzazione() {
             Una piccola sorpresa
           </h1>
           <p className="mt-2 text-sm text-white/70">
-            Tra poco scopri tutto.
+            Congratulazioni Dottoressa Ginecologa Anna Giudici 🩺
           </p>
         </header>
 
@@ -271,7 +271,9 @@ export default function AnnaSpecializzazione() {
                   </div>
                 </div>
 
-                <div className="mt-4 text-sm text-white/80">{packCopy?.line}</div>
+                {packCopy?.line ? (
+                  <div className="mt-4 text-sm text-white/80">{packCopy.line}</div>
+                ) : null}
               </motion.div>
             )}
           </AnimatePresence>
