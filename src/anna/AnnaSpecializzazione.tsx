@@ -12,7 +12,7 @@ const MED_SHAPES = (() => {
   // canvas-confetti supports emoji/text shapes
   const anyConfetti = confetti as any;
   const mk = (text: string) => anyConfetti.shapeFromText({ text, scalar: 1.05 });
-  return [mk("🩺"), mk("💊"), mk("🧬"), mk("🩹"), mk("🧪")];
+  return [mk("🩺"), mk("🩻"), mk("🥼")];
 })();
 
 function fireMedicalConfetti(intensity: "light" | "big" = "light") {
