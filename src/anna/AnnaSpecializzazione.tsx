@@ -1,15 +1,61 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { HeartPulse, Mountain, Snowflake, Stethoscope } from "lucide-react";
+import { Pill, Stethoscope, Syringe } from "lucide-react";
 
 type Pack = "A" | "B" | "C";
 
 const STORAGE_KEY = "anna_specializzazione_gift_pack";
 
-function fireConfettiOnce() {
-  const end = Date.now() + 1200;
-  const defaults = { startVelocity: 25, spread: 360, ticks: 55, zIndex: 999 };
+function fireMedicalConfetti(intensity: "light" | "big" = "light") {
+  const duration = intensity === "big" ? 1700 : 900;
+  const end = Date.now() + duration;
+  const colors = ["#22c55e", "#60a5fa", "#f472b6", "#a78bfa", "#fde047"]; // green/blue/pink/purple/yellow
+  const defaults = {
+    startVelocity: intensity === "big" ? 34 : 26,
+    spread: 360,
+    ticks: intensity === "big" ? 70 : 55,
+    zIndex: 999,
+    gravity: 0.95,
+    scalar: intensity === "big" ? 1.1 : 1.0,
+  };
+
+  const interval = setInterval(() => {
+    const timeLeft = end - Date.now();
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      return;
+    }
+
+    const particleCount = intensity === "big" ? 55 : 32;
+
+    confetti({
+      ...defaults,
+      particleCount,
+      origin: { x: 0.5, y: 0.32 },
+      colors,
+    });
+
+    confetti({
+      ...defaults,
+      particleCount: Math.floor(particleCount * 0.5),
+      origin: { x: 0.15, y: 0.35 },
+      colors,
+    });
+
+    confetti({
+      ...defaults,
+      particleCount: Math.floor(particleCount * 0.5),
+      origin: { x: 0.85, y: 0.35 },
+      colors,
+    });
+  }, intensity === "big" ? 220 : 240);
+}
+
+function fireSnowConfetti() {
+  const end = Date.now() + 1600;
+  const colors = ["#e2e8f0", "#bfdbfe", "#f8fafc"]; // icy whites/blues
+  const defaults = { startVelocity: 18, spread: 360, ticks: 80, zIndex: 999, gravity: 0.7, scalar: 0.9 };
 
   const interval = setInterval(() => {
     const timeLeft = end - Date.now();
@@ -21,10 +67,10 @@ function fireConfettiOnce() {
     confetti({
       ...defaults,
       particleCount: 35,
-      origin: { x: 0.5, y: 0.35 },
-      colors: ["#60a5fa", "#34d399", "#f472b6", "#fde047", "#a78bfa"],
+      origin: { x: 0.5, y: 0.15 },
+      colors,
     });
-  }, 220);
+  }, 260);
 }
 
 function FloatingIcon({
@@ -60,44 +106,66 @@ function FloatingIcon({
   );
 }
 
-function PackCard({
+function GiftBox({
   label,
-  subtitle,
   onPick,
-  tone,
+  accent,
+  wiggleDelay,
 }: {
   label: string;
-  subtitle: string;
   onPick: () => void;
-  tone: "ice" | "rose" | "mint";
+  accent: "a" | "b" | "c";
+  wiggleDelay: number;
 }) {
-  const gradient =
-    tone === "ice"
-      ? "from-sky-500/25 to-indigo-500/15"
-      : tone === "rose"
-        ? "from-fuchsia-500/20 to-rose-500/15"
-        : "from-emerald-500/20 to-teal-500/15";
+  const accentGrad =
+    accent === "a"
+      ? "from-fuchsia-500/25 to-indigo-500/10"
+      : accent === "b"
+        ? "from-emerald-500/20 to-sky-500/10"
+        : "from-amber-400/20 to-rose-500/10";
 
   return (
     <motion.button
       onClick={onPick}
       className={
-        "w-full rounded-2xl border border-white/15 bg-gradient-to-br " +
-        gradient +
-        " px-5 py-4 text-left backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
+        "relative w-full overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br " +
+        accentGrad +
+        " px-6 py-8 text-left backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
       }
-      whileTap={{ scale: 0.985 }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        rotate: [0, -1.5, 1.5, 0],
+      }}
+      transition={{
+        opacity: { duration: 0.25 },
+        y: { duration: 0.25 },
+        rotate: { delay: wiggleDelay, duration: 1.1, ease: "easeInOut" },
+      }}
       whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.985 }}
       layout
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-base font-semibold text-white">{label}</div>
-          <div className="mt-1 text-sm text-white/70">{subtitle}</div>
-        </div>
-        <div className="text-xl">🎁</div>
+      {/* ribbon */}
+      <div className="pointer-events-none absolute inset-0 opacity-55">
+        <div className="absolute left-1/2 top-0 h-full w-10 -translate-x-1/2 bg-white/10" />
+        <div className="absolute left-0 top-1/2 h-10 w-full -translate-y-1/2 bg-white/10" />
       </div>
-      <div className="mt-3 text-xs text-white/55">Tocca per aprire</div>
+
+      <div className="relative">
+        <div className="flex items-center justify-between">
+          <div className="text-lg font-semibold">{label}</div>
+          <div className="text-2xl">🎁</div>
+        </div>
+        <div className="mt-2 text-sm text-white/70">
+          Tocca per scartare
+        </div>
+      </div>
+
+      {/* sparkles */}
+      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -left-8 -bottom-10 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
     </motion.button>
   );
 }
@@ -108,31 +176,34 @@ export default function AnnaSpecializzazione() {
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY) as Pack | null;
     if (saved === "A" || saved === "B" || saved === "C") setPicked(saved);
+
+    // More “medical” confetti at page open
+    setTimeout(() => fireMedicalConfetti("big"), 350);
   }, []);
 
   const onPick = (p: Pack) => {
     setPicked(p);
     window.localStorage.setItem(STORAGE_KEY, p);
-    // a tiny delay so animations start, then confetti
-    setTimeout(() => fireConfettiOnce(), 350);
+
+    // snow effects only after opening
+    setTimeout(() => fireSnowConfetti(), 450);
   };
 
   const packCopy = useMemo(() => {
-    // keep it fun but not cringe: tiny variations
     switch (picked) {
       case "A":
         return {
-          title: "Pacco A — Modalità: neve ⛷️",
-          line: "Congratulazioni per la specializzazione: Dottoressa Ginecologa 💙",
+          title: "Pacco A",
+          line: "Congratulazioni per la specializzazione: Dottoressa Ginecologa 🩺",
         };
       case "B":
         return {
-          title: "Pacco B — Modalità: vetta 🏔️",
+          title: "Pacco B",
           line: "Ufficialmente ginecologa. Adesso sì che possiamo dirlo 😄",
         };
       case "C":
         return {
-          title: "Pacco C — Modalità: missione compiuta 🩺",
+          title: "Pacco C",
           line: "Specializzazione sbloccata. Livello: leggenda.",
         };
       default:
@@ -143,29 +214,28 @@ export default function AnnaSpecializzazione() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-white">
       <div className="relative mx-auto w-full max-w-md px-4 pb-10 pt-6">
-        {/* floating icons */}
-        <FloatingIcon x="6%" y="10%" delay={0.2}>
-          <Snowflake className="h-7 w-7 text-sky-300" />
-        </FloatingIcon>
-        <FloatingIcon x="80%" y="12%" delay={0.5}>
-          <Stethoscope className="h-7 w-7 text-fuchsia-300" />
-        </FloatingIcon>
-        <FloatingIcon x="10%" y="68%" delay={0.8}>
-          <Mountain className="h-7 w-7 text-indigo-300" />
-        </FloatingIcon>
-        <FloatingIcon x="82%" y="72%" delay={1.1}>
-          <HeartPulse className="h-7 w-7 text-rose-300" />
-        </FloatingIcon>
+        {/* floating icons: medicine only at start */}
+        {!picked && (
+          <>
+            <FloatingIcon x="8%" y="12%" delay={0.15}>
+              <Stethoscope className="h-7 w-7 text-sky-200" />
+            </FloatingIcon>
+            <FloatingIcon x="82%" y="16%" delay={0.45}>
+              <Syringe className="h-7 w-7 text-fuchsia-200" />
+            </FloatingIcon>
+            <FloatingIcon x="10%" y="70%" delay={0.75}>
+              <Pill className="h-7 w-7 text-emerald-200" />
+            </FloatingIcon>
+          </>
+        )}
 
         <header className="pt-10">
-          <div className="text-xs uppercase tracking-widest text-white/55">
-            Per Anna
-          </div>
+          <div className="text-xs uppercase tracking-widest text-white/55">Per Anna</div>
           <h1 className="mt-2 text-2xl font-semibold leading-tight">
-            Una piccola sorpresa (non aprire troppo in fretta)
+            Una piccola sorpresa
           </h1>
           <p className="mt-2 text-sm text-white/70">
-            Oggi niente quiz. Solo tre pacchi. Scegline uno.
+            Tra poco scopri tutto.
           </p>
         </header>
 
@@ -177,32 +247,15 @@ export default function AnnaSpecializzazione() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-5"
               >
-                <PackCard
-                  label="Pacco A"
-                  subtitle="Un po’ di neve, un po’ di stile"
-                  tone="ice"
-                  onPick={() => onPick("A")}
-                />
-
-                <PackCard
-                  label="Pacco B"
-                  subtitle="Per quando la montagna chiama"
-                  tone="mint"
-                  onPick={() => onPick("B")}
-                />
-
-                <PackCard
-                  label="Pacco C"
-                  subtitle="Per celebrare come si deve"
-                  tone="rose"
-                  onPick={() => onPick("C")}
-                />
-
-                <div className="mt-1 text-center text-xs text-white/45">
-                  (Se ricarichi la pagina, niente trucchi: il pacco scelto resta.)
+                <div className="text-center text-sm text-white/75">
+                  Tocca un pacco per scartarlo.
                 </div>
+
+                <GiftBox label="Pacco A" accent="a" wiggleDelay={0.9} onPick={() => onPick("A")} />
+                <GiftBox label="Pacco B" accent="b" wiggleDelay={1.1} onPick={() => onPick("B")} />
+                <GiftBox label="Pacco C" accent="c" wiggleDelay={1.3} onPick={() => onPick("C")} />
               </motion.div>
             ) : (
               <motion.div
@@ -211,38 +264,20 @@ export default function AnnaSpecializzazione() {
                 animate={{ opacity: 1, y: 0 }}
                 className="rounded-3xl border border-white/15 bg-white/5 p-5 backdrop-blur"
               >
-                <div className="text-sm font-semibold text-white/90">
-                  {packCopy?.title}
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-white/90">{packCopy?.title}</div>
+                  <Stethoscope className="h-5 w-5 text-emerald-200" />
                 </div>
 
                 <div className="mt-3 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-4">
-                  <div className="text-xs uppercase tracking-widest text-white/55">
-                    Voucher
-                  </div>
+                  <div className="text-xs uppercase tracking-widest text-white/55">Voucher</div>
                   <div className="mt-1 text-3xl font-semibold">250€</div>
                   <div className="mt-1 text-sm text-white/75">
-                    Per una <span className="font-medium text-white">tuta da sci</span>.
-                    La scegli tu dove vuoi.
+                    Per una <span className="font-medium text-white">tuta da sci</span>. La scegli tu dove vuoi.
                   </div>
                 </div>
 
-                <div className="mt-4 text-sm text-white/80">
-                  {packCopy?.line}
-                </div>
-
-                <div className="mt-5 flex items-center justify-between gap-3">
-                  <button
-                    className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white/80 hover:bg-white/15"
-                    onClick={() => {
-                      window.localStorage.removeItem(STORAGE_KEY);
-                      setPicked(null);
-                    }}
-                  >
-                    Reset (solo test)
-                  </button>
-
-                  <div className="text-xs text-white/45">🩺 + ⛷️</div>
-                </div>
+                <div className="mt-4 text-sm text-white/80">{packCopy?.line}</div>
               </motion.div>
             )}
           </AnimatePresence>
