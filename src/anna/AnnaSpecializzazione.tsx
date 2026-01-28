@@ -275,7 +275,7 @@ export default function AnnaSpecializzazione() {
                   <motion.img
                     src={skiSticker}
                     alt=""
-                    className="pointer-events-none absolute -bottom-8 -right-6 h-36 w-auto rotate-6 select-none opacity-90"
+                    className="pointer-events-none absolute -bottom-8 -right-6 h-36 w-auto rotate-6 select-none opacity-95 mix-blend-multiply"
                     initial={{ opacity: 0, x: 24, y: 24, rotate: 12, scale: 0.95 }}
                     animate={{ opacity: 0.95, x: 0, y: 0, rotate: 6, scale: 1 }}
                     transition={{ delay: 0.35, duration: 0.55, ease: "easeOut" }}
