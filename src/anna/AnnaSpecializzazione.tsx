@@ -119,11 +119,13 @@ function FloatingIcon({
 
 function GiftBox({
   label,
+  icon,
   onPick,
   accent,
   wiggleDelay,
 }: {
   label: string;
+  icon: string;
   onPick: () => void;
   accent: "a" | "b" | "c";
   wiggleDelay: number;
@@ -155,7 +157,7 @@ function GiftBox({
         animate={{ rotate: [0, -10, 10, 0] }}
         transition={{ delay: wiggleDelay, duration: 1.25, ease: "easeInOut" }}
       >
-        <div className="text-6xl leading-none">🎁</div>
+        <div className="text-6xl leading-none">{icon}</div>
       </motion.div>
 
       <div className="mt-3 text-center text-base font-semibold text-white/90">{label}</div>
@@ -247,9 +249,9 @@ export default function AnnaSpecializzazione() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <GiftBox label="Pacco A" accent="a" wiggleDelay={0.9} onPick={() => onPick("A")} />
-                  <GiftBox label="Pacco B" accent="b" wiggleDelay={1.1} onPick={() => onPick("B")} />
-                  <GiftBox label="Pacco C" accent="c" wiggleDelay={1.3} onPick={() => onPick("C")} />
+                  <GiftBox label="Pacco A" icon="🩺" accent="a" wiggleDelay={0.9} onPick={() => onPick("A")} />
+                  <GiftBox label="Pacco B" icon="🩻" accent="b" wiggleDelay={1.1} onPick={() => onPick("B")} />
+                  <GiftBox label="Pacco C" icon="🥼" accent="c" wiggleDelay={1.3} onPick={() => onPick("C")} />
                 </div>
               </motion.div>
             ) : (
