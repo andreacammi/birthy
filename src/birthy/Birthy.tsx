@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import explodeImg from '../assets/memojis/explode.png'
 import swearImg from '../assets/memojis/swear.png'
 import bullImg from '../assets/memojis/bull.png'
@@ -40,52 +39,6 @@ const questions = [
         answer: ["parigi", "paris"]
     }
 ]
-
-const fireConfetti = () => {
-    const duration = 5 * 1000
-    const animationEnd = Date.now() + duration
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
-
-    const randomInRange = (min: number, max: number) => {
-        return Math.random() * (max - min) + min
-    }
-
-    const interval: NodeJS.Timeout = setInterval(() => {
-        const timeLeft = animationEnd - Date.now()
-
-        if (timeLeft <= 0) {
-            clearInterval(interval)
-            return
-        }
-
-        const particleCount = 100 * (timeLeft / duration)
-
-        // Center explosion
-        confetti(Object.assign({}, defaults, {
-            particleCount,
-            origin: { x: randomInRange(0.4, 0.6), y: randomInRange(0.4, 0.6) }
-        }))
-
-        // Corner explosions
-        confetti(Object.assign({}, defaults, {
-            particleCount: particleCount / 2,
-            origin: { x: randomInRange(0, 0.2), y: randomInRange(0, 0.2) }
-        }))
-        confetti(Object.assign({}, defaults, {
-            particleCount: particleCount / 2,
-            origin: { x: randomInRange(0.8, 1), y: randomInRange(0, 0.2) }
-        }))
-        confetti(Object.assign({}, defaults, {
-            particleCount: particleCount / 4,
-            origin: { x: randomInRange(0, 0.2), y: randomInRange(0.8, 1) }
-        }))
-        confetti(Object.assign({}, defaults, {
-            particleCount: particleCount / 4,
-            origin: { x: randomInRange(0.8, 1), y: randomInRange(0.8, 1) }
-        }))
-
-    }, 250)
-}
 
 const RotatingCard = ({ value }: { value: string }) => (
     <motion.div

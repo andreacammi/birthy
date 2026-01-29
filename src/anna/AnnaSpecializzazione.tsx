@@ -2,66 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Pill, Stethoscope, Syringe } from "lucide-react";
-import skiSticker from "../assets/anna/ski-sticker.jpg";
+import skiSticker from "../assets/anna/ski-sticker.png";
 
 type Pack = "A" | "B" | "C";
 
 const STORAGE_KEY = "anna_specializzazione_gift_pack";
-
-const MED_SHAPES = (() => {
-  // canvas-confetti supports emoji/text shapes
-  const anyConfetti = confetti as any;
-  const mk = (text: string) => anyConfetti.shapeFromText({ text, scalar: 1.05 });
-  return [mk("🩺"), mk("🩻"), mk("🥼")];
-})();
-
-function fireMedicalConfetti(intensity: "light" | "big" = "light") {
-  const duration = intensity === "big" ? 1600 : 900;
-  const end = Date.now() + duration;
-  const defaults = {
-    startVelocity: intensity === "big" ? 34 : 26,
-    spread: 360,
-    ticks: intensity === "big" ? 85 : 70,
-    zIndex: 999,
-    gravity: 0.9,
-    scalar: intensity === "big" ? 1.2 : 1.05,
-  };
-
-  const pickShape = () => MED_SHAPES[Math.floor(Math.random() * MED_SHAPES.length)];
-
-  const interval = setInterval(() => {
-    const timeLeft = end - Date.now();
-    if (timeLeft <= 0) {
-      clearInterval(interval);
-      return;
-    }
-
-    const particleCount = intensity === "big" ? 42 : 26;
-
-    const shapes = [pickShape(), pickShape()];
-
-    confetti({
-      ...defaults,
-      particleCount,
-      origin: { x: 0.5, y: 0.28 },
-      shapes,
-    });
-
-    confetti({
-      ...defaults,
-      particleCount: Math.floor(particleCount * 0.55),
-      origin: { x: 0.18, y: 0.32 },
-      shapes,
-    });
-
-    confetti({
-      ...defaults,
-      particleCount: Math.floor(particleCount * 0.55),
-      origin: { x: 0.82, y: 0.32 },
-      shapes,
-    });
-  }, intensity === "big" ? 200 : 230);
-}
 
 function fireSnowConfetti() {
   const end = Date.now() + 1600;
@@ -171,9 +116,6 @@ export default function AnnaSpecializzazione() {
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY) as Pack | null;
     if (saved === "A" || saved === "B" || saved === "C") setPicked(saved);
-
-    // More “medical” confetti at page open
-    setTimeout(() => fireMedicalConfetti("big"), 350);
   }, []);
 
   const onPick = (p: Pack) => {
@@ -277,9 +219,9 @@ export default function AnnaSpecializzazione() {
                   <motion.img
                     src={skiSticker}
                     alt=""
-                    className="pointer-events-none absolute -bottom-8 -right-6 h-36 w-auto rotate-6 select-none opacity-95 mix-blend-multiply"
+                    className="pointer-events-none absolute -bottom-8 -right-6 h-36 w-auto rotate-6 select-none"
                     initial={{ opacity: 0, x: 24, y: 24, rotate: 12, scale: 0.95 }}
-                    animate={{ opacity: 0.95, x: 0, y: 0, rotate: 6, scale: 1 }}
+                    animate={{ opacity: 1, x: 0, y: 0, rotate: 6, scale: 1 }}
                     transition={{ delay: 0.35, duration: 0.55, ease: "easeOut" }}
                   />
 
